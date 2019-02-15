@@ -5,9 +5,8 @@ is that there were many cases where I had to go through the whole Torch build
 process to run OpenFace in a new environment, and I wanted to speed the setup
 of that environment.
 
-A Dockerfile is provided so that you can create a build system specifically
-to build the `.deb` and avoid installing all of the build dependencies on 
-your host system.
+To build a workable package, it is best to execute the build inside the 
+container specified by the Dockerfile in the project root directory. 
 
 To build the Docker image, change to this project directory and execute
 

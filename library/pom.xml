@@ -15,8 +15,28 @@
         <construction.area>${project.build.directory}/construction-area</construction.area>
         <install.prefix>${project.build.directory}/install-area</install.prefix>
         <install.zip>${project.build.directory}/torch-library.zip</install.zip>
+        <prebuilt.library.zip>${project.parent.basedir}/torch-library.zip</prebuilt.library.zip>
+        <prebuilt.library.zip.exists>false</prebuilt.library.zip.exists>
     </properties>
     <profiles>
+        <profile>
+            <id>prebuilt</id>
+            <properties>
+                <prebuilt.library.zip.exists>true</prebuilt.library.zip.exists>
+                <install.zip>${prebuilt.library.zip}</install.zip>
+            </properties>
+            <activation>
+                <file>
+                    <exists>${prebuilt.library.zip.path.relative}</exists>
+                </file>
+            </activation>
+        </profile>
+        <profile>
+            <id>container</id>
+            <properties>
+                <install.prefix>/usr/lib/${package.name}</install.prefix>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <plugins>
@@ -25,26 +45,13 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>prepare-to-clone</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>rm</executable>
-                            <arguments>
-                                <argument>-rf</argument>
-                                <argument>${construction.area}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>clone-torch</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
                             <executable>git</executable>
                             <arguments>
                                 <argument>clone</argument>
@@ -60,6 +67,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
                             <executable>${construction.area}/install.sh</executable>
                             <workingDirectory>${construction.area}</workingDirectory>
                             <environmentVariables>
@@ -76,6 +84,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>remove-existing-cloned-dir</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete dir="${construction.area}" quiet="true"/>
+                            </target>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>prepare-for-torch-compile</id>
                         <phase>generate-sources</phase>

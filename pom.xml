@@ -37,6 +37,8 @@
         <url>https://github.com/mike10004/torch-deb</url>
     </scm>
     <properties>
+        <app.name>torch</app.name>
+        <package.name>${app.name}-private</package.name>
     </properties>
     <profiles>
     </profiles>
