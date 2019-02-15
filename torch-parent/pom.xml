@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.mike10004</groupId>
-    <artifactId>torch-deb</artifactId>
+    <artifactId>torch-parent</artifactId>
     <version>7.0_1</version>
-    <name>torch-deb</name>
+    <name>torch-parent</name>
     <description>Torch packaging support</description>
     <packaging>pom</packaging>
     <modules>

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.mike10004</groupId>
-        <artifactId>torch-deb</artifactId>
+        <artifactId>torch-parent</artifactId>
         <version>7.0_1</version>
     </parent>
     <artifactId>torch-packaging</artifactId>
