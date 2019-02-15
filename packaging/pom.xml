@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.mike10004</groupId>
+        <artifactId>torch-deb</artifactId>
+        <version>7.0_1</version>
+    </parent>
+    <artifactId>torch-packaging</artifactId>
+    <packaging>pom</packaging>
+    <name>packaging</name>
+    <description>Torch distributable</description>
+    <properties>
+        <app.name>torch</app.name>
+        <package.name>${app.name}-private</package.name>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyyMMddHHmmssZ</maven.build.timestamp.format>
+        <timestamp.clean>${maven.build.timestamp}</timestamp.clean> <!-- https://stackoverflow.com/a/13228882/2657036 -->
+        <dist.version>${project.version}-${maven.build.timestamp}</dist.version>
+        <package.revision>1</package.revision>
+        <symlink-duplicates.logLevel>DEBUG</symlink-duplicates.logLevel>
+        <package.architecture>amd64</package.architecture>
+    </properties>
+    <profiles>
+    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>stage-torch-library</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/deb/usr/lib/${package.name}</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>torch-library</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>fix-permissions</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <chmod perm="0755" type="file" verbose="true">
+                                    <fileset dir="${project.build.directory}/deb/usr/lib/${package.name}/bin"/>
+                                </chmod>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-symlinks</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/deb/usr/bin"/>
+                                <mkdir dir="${project.build.directory}/deb/usr/lib"/>
+                                <mkdir dir="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/json2lua" resource="../lib/${package.name}/bin/json2lua"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/lua2json" resource="../lib/${package.name}/bin/lua2json"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luajit" resource="../lib/${package.name}/bin/luajit"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks" resource="../lib/${package.name}/bin/luarocks"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks-admin" resource="../lib/${package.name}/bin/luarocks-admin"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/mdcat" resource="../lib/${package.name}/bin/mdcat"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/qlua" resource="../lib/${package.name}/bin/qlua"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/th" resource="../lib/${package.name}/bin/th"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/lua" resource="../lib/${package.name}/lib/lua"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/luarocks" resource="../lib/${package.name}/lib/luarocks"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so.0" resource="../../lib/${package.name}/lib/libTH.so.0"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so" resource="libTH.so.0"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so.0" resource="../../lib/${package.name}/lib/libluaT.so.0"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so" resource="libluaT.so.0"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluajit.so" resource="../../lib/${package.name}/lib/libluajit.so"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqlua.so" resource="../../lib/${package.name}/lib/libqlua.so"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqtlua.so" resource="../../lib/${package.name}/lib/libqtlua.so"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libthreadsmain.so" resource="../../lib/${package.name}/lib/libthreadsmain.so"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.mike10004</groupId>
+                <artifactId>debian-maven-plugin</artifactId>
+                <version>1.0.9</version>
+                <executions>
+                    <execution>
+                        <id>build-torch-deb</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <packageName>${package.name}</packageName>
+                            <packageTitle>Torch Custom Installation</packageTitle>
+                            <packageVersion>7.0</packageVersion>
+                            <packageRevision>${package.revision}</packageRevision>
+                            <packageArchitecture>${package.architecture}</packageArchitecture>
+                            <projectUrl>https://github.com/mike10004/torch-deb</projectUrl>
+                            <projectOrganization>Mike's Basement Inc.</projectOrganization>
+                            <maintainerName>Mike Chaberski</maintainerName>
+                            <maintainerEmail>mchaberski@gmail.com</maintainerEmail>
+                            <includeAttachedArtifacts>false</includeAttachedArtifacts>
+                            <excludeAllDependencies>true</excludeAllDependencies>
+                            <excludeAllArtifacts>true</excludeAllArtifacts>
+                            <packageDependencies>
+                            <!-- libgraphicsmagick1-dev libfftw3-dev sox libsox-dev libsox-fmt-all -->
+                                <package>libgraphicsmagick1-dev</package>
+                                <package>libfftw3-dev</package>
+                                <package>sox</package>
+                                <package>libsox-dev</package>
+                                <package>libsox-fmt-all</package>
+                                <package>libreadline-dev</package>
+                                <package>libqt4-dev</package>
+                                <package>libjpeg-dev</package>
+                                <package>libpng-dev</package>
+                                <package>ncurses-dev</package>
+                                <package>imagemagick</package>
+                                <package>libzmq3-dev</package>
+                                <package>gfortran</package>
+                                <package>unzip</package>
+                                <package>gnuplot</package>
+                                <package>gnuplot-x11</package>
+                                <package>ipython</package>
+                                <package>libblas3</package>
+                                <package>libblas-dev</package>
+                                <package>libatlas3-base</package>
+                                <package>libatlas-base-dev</package>
+                            </packageDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifact</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <!--
+                                        This filename is wrong; it should have the _amd64 suffix instead.
+                                        See https://github.com/mike10004/debian-maven-plugin/issues/2
+                                    -->
+                                    <file>${project.build.directory}/${package.name}_7.0-${package.revision}_all.deb</file>
+                                    <type>deb</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencyManagement>
+        <dependencies>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>torch-library</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <optional>true</optional>
+        </dependency>
+        <!-- END dependencies of tests -->
+    </dependencies>
+</project>
+    
