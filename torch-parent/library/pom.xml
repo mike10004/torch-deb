@@ -78,6 +78,57 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>install-openface-lua-rocks-dpnn</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
+                            <executable>${install.prefix}/bin/luarocks</executable>
+                            <workingDirectory>${construction.area}</workingDirectory>
+                            <arguments>
+                                <argument>--to=${install.prefix}</argument>
+                                <argument>install</argument>
+                                <argument>dpnn</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-openface-lua-rocks-nn</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
+                            <executable>${install.prefix}/bin/luarocks</executable>
+                            <workingDirectory>${construction.area}</workingDirectory>
+                            <arguments>
+                                <argument>--to=${install.prefix}</argument>
+                                <argument>install</argument>
+                                <argument>nn</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-openface-lua-rocks-csvigo</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
+                            <executable>${install.prefix}/bin/luarocks</executable>
+                            <workingDirectory>${construction.area}</workingDirectory>
+                            <arguments>
+                                <argument>--to=${install.prefix}</argument>
+                                <argument>install</argument>
+                                <argument>csvigo</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
