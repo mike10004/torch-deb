@@ -8,13 +8,30 @@ of that environment.
 To build a workable package, it is best to execute the build inside the 
 container specified by the Dockerfile in the project root directory. 
 
+# Building inside the container
+
+## Build the image
+
 To build the Docker image, change to this project directory and execute
 
     $ docker build -t torch-deb .
 
-To enter the enviroment, execute
+To build the `.deb` file, you can run the default container command and then 
+copy the output file from the container filesystem to your host filesystem,
+or you can run a bash shell and build from within the container.
 
-    $ docker run [--rm] --mount "type=bind,src=$PWD,dst=/root/torch-deb" -it torch-deb /bin/bash -l
+## Build the deb
+
+### Use the default command
+
+    $ docker run --name my-torch-deb torch-deb
+    $ docker cp my-torch-deb:/root/torch-parent/packaging/target/torch-private_7.0-1_all.deb ./
+
+### ...or start a shell  
+
+To start a shell, execute
+
+    $ docker run --rm -it torch-deb /bin/bash -l
 
 To build the `.deb` from within that container, execute
 

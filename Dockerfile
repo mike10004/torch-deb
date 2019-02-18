@@ -4,6 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR "/root"
 
+COPY "torch-parent" "/root/torch-parent"
+
 # Install build dependencies
 RUN apt-get update &&\
     apt-get -y install apt-utils &&\
@@ -39,14 +41,8 @@ RUN apt-get update &&\
         libatlas-base-dev \
         && apt-get clean
 
-# Prime the local Maven repository
+# Prime local Maven repository
 
-RUN mvn archetype:generate \
-    -DarchetypeGroupId=org.apache.maven.archetypes \
-    -DarchetypeArtifactId=maven-archetype-quickstart \
-    -DarchetypeVersion=1.4 \
-    -DinteractiveMode=false \
-    -DgroupId=com.example -DartifactId=prime-maven -Dversion=1.0-SNAPSHOT \
-    -Dgoals="clean install" &&\
-    true
+RUN mvn -f "/root/torch-parent/pom.xml" dependency:go-offline
 
+CMD ["mvn", "-f", "/root/torch-parent/pom.xml", "install", "-P", "container"]
