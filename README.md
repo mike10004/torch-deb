@@ -18,7 +18,7 @@ To enter the enviroment, execute
 
 To build the `.deb` from within that container, execute
 
-    $ mvn -f /root/torch-parent/pom.xml install
+    $ mvn -f /root/torch-parent/pom.xml install -Pcontainer
 
 ## OpenFace continuation
 
