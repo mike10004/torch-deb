@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.mike10004</groupId>
         <artifactId>torch-parent</artifactId>
-        <version>7.0_2</version>
+        <version>7.0_3</version>
     </parent>
     <artifactId>torch-packaging</artifactId>
     <packaging>pom</packaging>

@@ -6,13 +6,14 @@
 
     <groupId>com.github.mike10004</groupId>
     <artifactId>torch-parent</artifactId>
-    <version>7.0_2</version>
+    <version>7.0_3</version>
     <name>torch-parent</name>
     <description>Torch packaging support</description>
     <packaging>pom</packaging>
     <modules>
         <module>library</module>
         <module>packaging</module>
+        <module>torch-tests</module>
     </modules>
     <url>https://github.com/mike10004/torch-deb</url>
     <inceptionYear>2019</inceptionYear>
@@ -39,8 +40,9 @@
     <properties>
         <app.name>torch</app.name>
         <package.name>${app.name}-private</package.name>
-        <package.revision>2</package.revision> <!-- keep this in sync with the _N suffix of the artifact version -->
+        <package.revision>3</package.revision> <!-- keep this in sync with the _N suffix of the artifact version -->
         <package.architecture>amd64</package.architecture>
+        <outputLib.copy.skip>true</outputLib.copy.skip>
         <outputDeb.copy.skip>true</outputDeb.copy.skip>
     </properties>
     <profiles>
@@ -48,21 +50,13 @@
             <id>container</id>
             <properties>
                 <install.prefix>/usr/lib/${package.name}</install.prefix>
+                <outputLib.copy.skip>false</outputLib.copy.skip>
+                <outputLib.copy.destination>/mnt</outputLib.copy.destination>
                 <outputDeb.copy.skip>false</outputDeb.copy.skip>
                 <outputDeb.copy.destination>/mnt</outputDeb.copy.destination>
             </properties>
         </profile>
     </profiles>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
     <build>
         <pluginManagement>
             <plugins>
@@ -114,50 +108,17 @@
                     <version>1.12</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.7</version>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.6.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>sonar-maven-plugin</artifactId>
-                    <version>2.7.1</version>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
     <dependencyManagement>

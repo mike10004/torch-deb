@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.mike10004</groupId>
         <artifactId>torch-parent</artifactId>
-        <version>7.0_2</version>
+        <version>7.0_3</version>
     </parent>
     <artifactId>torch-library</artifactId>
     <packaging>pom</packaging>
@@ -17,6 +17,7 @@
         <install.zip>${project.build.directory}/torch-library.zip</install.zip>
         <prebuilt.library.zip>${project.parent.basedir}/torch-library.zip</prebuilt.library.zip>
         <prebuilt.library.zip.exists>false</prebuilt.library.zip.exists>
+        <outputLib.pathname>${install.zip}</outputLib.pathname>
     </properties>
     <profiles>
         <profile>
@@ -24,12 +25,8 @@
             <properties>
                 <prebuilt.library.zip.exists>true</prebuilt.library.zip.exists>
                 <install.zip>${prebuilt.library.zip}</install.zip>
+                <outputLib.pathname>${install.zip}</outputLib.pathname>
             </properties>
-            <activation>
-                <file>
-                    <exists>${prebuilt.library.zip.path.relative}</exists>
-                </file>
-            </activation>
         </profile>
     </profiles>
     <build>
@@ -162,6 +159,19 @@
                         <configuration>
                             <target>
                                 <zip basedir="${install.prefix}" destfile="${install.zip}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-output-deb</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${outputLib.copy.skip}</skip>
+                            <target>
+                                <copy file="${outputLib.pathname}" todir="${outputLib.copy.destination}"/>
                             </target>
                         </configuration>
                     </execution>
