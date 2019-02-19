@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.mike10004</groupId>
         <artifactId>torch-parent</artifactId>
-        <version>7.0_1</version>
+        <version>7.0_2</version>
     </parent>
     <artifactId>torch-packaging</artifactId>
     <packaging>pom</packaging>
@@ -15,13 +15,22 @@
 		<maven.build.timestamp.format>yyyyMMddHHmmssZ</maven.build.timestamp.format>
         <timestamp.clean>${maven.build.timestamp}</timestamp.clean> <!-- https://stackoverflow.com/a/13228882/2657036 -->
         <dist.version>${project.version}-${maven.build.timestamp}</dist.version>
-        <package.revision>1</package.revision>
         <symlink-duplicates.logLevel>DEBUG</symlink-duplicates.logLevel>
-        <package.architecture>amd64</package.architecture>
+        <outputDeb.filename>${package.name}_7.0-${package.revision}_${package.architecture}.deb</outputDeb.filename>
+        <outputDeb.pathname>${project.build.directory}/${outputDeb.filename}</outputDeb.pathname>
     </properties>
     <profiles>
     </profiles>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.github.mike10004</groupId>
+                    <artifactId>debian-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -98,12 +107,24 @@
                             </target>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-output-deb</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${outputDeb.copy.skip}</skip>
+                            <target>
+                                <copy file="${outputDeb.pathname}" todir="${outputDeb.copy.destination}"/>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
                 <groupId>com.github.mike10004</groupId>
                 <artifactId>debian-maven-plugin</artifactId>
-                <version>1.0.9</version>
                 <executions>
                     <execution>
                         <id>build-torch-deb</id>
@@ -124,8 +145,8 @@
                             <includeAttachedArtifacts>false</includeAttachedArtifacts>
                             <excludeAllDependencies>true</excludeAllDependencies>
                             <excludeAllArtifacts>true</excludeAllArtifacts>
+                            <!-- TODO: trim package deps list down; some of these are build dependencies not needed at runtime -->
                             <packageDependencies>
-                            <!-- libgraphicsmagick1-dev libfftw3-dev sox libsox-dev libsox-fmt-all -->
                                 <package>libgraphicsmagick1-dev</package>
                                 <package>libfftw3-dev</package>
                                 <package>sox</package>
@@ -148,6 +169,30 @@
                                 <package>libatlas3-base</package>
                                 <package>libatlas-base-dev</package>
                             </packageDependencies>
+                            <packageConflicts>
+                                <package>luarocks</package>
+                                <package>luajit</package>
+                                <package>lua-torch-cwrap</package>
+                                <package>lua-torch-dok</package>
+                                <package>lua-torch-graph</package>
+                                <package>lua-torch-image</package>
+                                <package>lua-torch-optim</package>
+                                <package>lua-torch-paths</package>
+                                <package>lua-torch-paths-dev</package>
+                                <package>lua-torch-sundown</package>
+                                <package>lua-torch-sys</package>
+                                <package>lua-torch-torch7</package>
+                                <package>lua-torch-torch7-dev</package>
+                                <package>lua-torch-trepl</package>
+                                <package>lua-torch-xlua</package>
+                                <package>torch-trepl</package>
+                                <package>libtorch-luat</package>
+                                <package>libtorch-luat-dev</package>
+                                <package>libtorch-th</package>
+                                <package>libtorch-th-dev</package>
+                                <package>libtorch3-dev</package>
+                                <package>libtorch3c2</package>
+                            </packageConflicts>
                         </configuration>
                     </execution>
                 </executions>
@@ -165,11 +210,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <!--
-                                        This filename is wrong; it should have the _amd64 suffix instead.
-                                        See https://github.com/mike10004/debian-maven-plugin/issues/2
-                                    -->
-                                    <file>${project.build.directory}/${package.name}_7.0-${package.revision}_all.deb</file>
+                                    <file>${outputDeb.pathname}</file>
                                     <type>deb</type>
                                 </artifact>
                             </artifacts>

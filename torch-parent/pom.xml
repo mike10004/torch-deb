@@ -6,7 +6,7 @@
 
     <groupId>com.github.mike10004</groupId>
     <artifactId>torch-parent</artifactId>
-    <version>7.0_1</version>
+    <version>7.0_2</version>
     <name>torch-parent</name>
     <description>Torch packaging support</description>
     <packaging>pom</packaging>
@@ -39,8 +39,19 @@
     <properties>
         <app.name>torch</app.name>
         <package.name>${app.name}-private</package.name>
+        <package.revision>2</package.revision> <!-- keep this in sync with the _N suffix of the artifact version -->
+        <package.architecture>amd64</package.architecture>
+        <outputDeb.copy.skip>true</outputDeb.copy.skip>
     </properties>
     <profiles>
+        <profile>
+            <id>container</id>
+            <properties>
+                <install.prefix>/usr/lib/${package.name}</install.prefix>
+                <outputDeb.copy.skip>false</outputDeb.copy.skip>
+                <outputDeb.copy.destination>/mnt</outputDeb.copy.destination>
+            </properties>
+        </profile>
     </profiles>
     <distributionManagement>
         <snapshotRepository>

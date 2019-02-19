@@ -24,8 +24,12 @@ or you can run a bash shell and build from within the container.
 
 ### Use the default command
 
-    $ docker run --name my-torch-deb torch-deb
-    $ docker cp my-torch-deb:/root/torch-parent/packaging/target/torch-private_7.0-1_all.deb ./
+Execute
+
+    $ docker run --mount type=bind,src=/tmp,dst=/mnt torch-deb
+
+to build the `.deb` and copy it to `/tmp`. Change `src=/tmp` to point to a 
+different destination directory if you so please. 
 
 ### ...or start a shell  
 
@@ -51,15 +55,15 @@ OpenFace setup is as follows:
 
     # apt update
 
-    # apt install --yes ./torch-private_7.0-1_all.deb
-    
-    # apt install --yes python-pip wget git cmake
+    # apt install --yes ./torch-private_7.0-1_all.deb python-pip wget git cmake
     
     # git clone https://github.com/cmusatyalab/openface.git
     
     # cd openface
     
-From here on, you might prefer to use an Anaconda or virtualenv environment.    
+From here on, you might prefer to use an Anaconda or virtualenv environment.
+To create an Anaconda environment, execute `conda create --name openface python=2.7`.
+After entering the environment (`conda activate openface`), continue as follows. 
     
     # pip install -r requirements
     
