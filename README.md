@@ -65,7 +65,7 @@ From here on, you might prefer to use an Anaconda or virtualenv environment.
 To create an Anaconda environment, execute `conda create --name openface python=2.7`.
 After entering the environment (`conda activate openface`), continue as follows. 
     
-    # pip install -r requirements
+    # pip install -r requirements.txt
     
     # pip install dlib==19.16.0 opencv-python==4.0.0.21
     
