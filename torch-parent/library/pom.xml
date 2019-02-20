@@ -15,22 +15,54 @@
         <construction.area>${project.build.directory}/construction-area</construction.area>
         <install.prefix>${project.build.directory}/install-area</install.prefix>
         <install.zip>${project.build.directory}/torch-library.zip</install.zip>
-        <prebuilt.library.zip>${project.parent.basedir}/torch-library.zip</prebuilt.library.zip>
-        <prebuilt.library.zip.exists>false</prebuilt.library.zip.exists>
         <outputLib.pathname>${install.zip}</outputLib.pathname>
+        <torchBuildProduct.descriptor.file>${project.build.testOutputDirectory}/torch-build-product.txt</torchBuildProduct.descriptor.file>
     </properties>
     <profiles>
-        <profile>
-            <id>prebuilt</id>
-            <properties>
-                <prebuilt.library.zip.exists>true</prebuilt.library.zip.exists>
-                <install.zip>${prebuilt.library.zip}</install.zip>
-                <outputLib.pathname>${install.zip}</outputLib.pathname>
-            </properties>
-        </profile>
     </profiles>
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>force-test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>force-surefire-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>failsafe-integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>failsafe-verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -127,6 +159,33 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>unzip-prebuilt-for-tests</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.ignore}</skip>
+                            <target>
+                                <unzip src="${prebuilt.library.zip}" dest="${project.build.testOutputDirectory}/torch-prebuilt"/>
+                                <echo file="${torchBuildProduct.descriptor.file}">${project.build.testOutputDirectory}/torch-prebuilt</echo>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>notprebuilt-write-build-product-descriptor</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
+                            <target>
+                                <echo file="${torchBuildProduct.descriptor.file}">${install.prefix}</echo>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>remove-existing-cloned-dir</id>
                         <phase>initialize</phase>
                         <goals>
@@ -157,13 +216,27 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
+                            <skip>${prebuilt.library.zip.exists}</skip>
                             <target>
                                 <zip basedir="${install.prefix}" destfile="${install.zip}"/>
                             </target>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-output-deb</id>
+                        <id>copy-prebuilt-zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${prebuilt.library.zip.ignore}</skip>
+                            <target>
+                                <copy file="${prebuilt.library.zip}" tofile="${install.zip}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-output-lib</id>
                         <phase>install</phase>
                         <goals>
                             <goal>run</goal>
@@ -201,5 +274,24 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
 </project>

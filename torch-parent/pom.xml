@@ -13,7 +13,6 @@
     <modules>
         <module>library</module>
         <module>packaging</module>
-        <module>torch-tests</module>
     </modules>
     <url>https://github.com/mike10004/torch-deb</url>
     <inceptionYear>2019</inceptionYear>
@@ -38,12 +37,18 @@
         <url>https://github.com/mike10004/torch-deb</url>
     </scm>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <app.name>torch</app.name>
         <package.name>${app.name}-private</package.name>
         <package.revision>3</package.revision> <!-- keep this in sync with the _N suffix of the artifact version -->
         <package.architecture>amd64</package.architecture>
         <outputLib.copy.skip>true</outputLib.copy.skip>
         <outputDeb.copy.skip>true</outputDeb.copy.skip>
+        <prebuilt.library.zip.exists>false</prebuilt.library.zip.exists>
+        <prebuilt.library.zip.ignore>true</prebuilt.library.zip.ignore>
+        <tests.surefire.skip>false</tests.surefire.skip>
+        <tests.failsafe.skip>false</tests.failsafe.skip>
     </properties>
     <profiles>
         <profile>
@@ -54,6 +59,23 @@
                 <outputLib.copy.destination>/mnt</outputLib.copy.destination>
                 <outputDeb.copy.skip>false</outputDeb.copy.skip>
                 <outputDeb.copy.destination>/mnt</outputDeb.copy.destination>
+            </properties>
+        </profile>
+        <profile>
+            <id>prebuilt</id>
+            <properties>
+                <prebuilt.library.zip>../../build/torch-library.zip</prebuilt.library.zip>
+                <prebuilt.library.zip.exists>true</prebuilt.library.zip.exists>
+                <prebuilt.library.zip.ignore>false</prebuilt.library.zip.ignore>
+                <install.zip>${prebuilt.library.zip}</install.zip>
+                <outputLib.pathname>${install.zip}</outputLib.pathname>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-tests</id>
+            <properties>
+                <tests.surefire.skip>true</tests.surefire.skip>
+                <tests.failsafe.skip>true</tests.failsafe.skip>
             </properties>
         </profile>
     </profiles>
@@ -74,28 +96,30 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.1</version>
+                    <version>3.0.0-M3</version>
                     <configuration>
+                        <skipTests>${tests.surefire.skip}</skipTests>
+                        <systemPropertyVariables>
+                            <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.22.1</version>
+                    <version>3.0.0-M3</version>
+                    <configuration>
+                        <skipTests>${tests.failsafe.skip}</skipTests>
+                        <systemPropertyVariables>
+                            <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
+                        </systemPropertyVariables>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
+                    <version>3.0.0-M1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.1</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
                 <plugin>
@@ -105,7 +129,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.12</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -123,8 +147,32 @@
     </build>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.18</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.8.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-    </dependencies>
 </project>

@@ -18,6 +18,7 @@
         <symlink-duplicates.logLevel>DEBUG</symlink-duplicates.logLevel>
         <outputDeb.filename>${package.name}_7.0-${package.revision}_${package.architecture}.deb</outputDeb.filename>
         <outputDeb.pathname>${project.build.directory}/${outputDeb.filename}</outputDeb.pathname>
+        <fixed.parent.basedir>${project.parent.basedir}</fixed.parent.basedir>
     </properties>
     <profiles>
     </profiles>
@@ -29,9 +30,75 @@
                     <artifactId>debian-maven-plugin</artifactId>
                     <version>2.0.0</version>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <project.build.directory>${project.build.directory}</project.build.directory>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <project.build.directory>${project.build.directory}</project.build.directory>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>force-test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>force-process-test-resources</id>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>force-surefire-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>failsafe-integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>failsafe-verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -43,6 +110,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/deb/usr/lib/${package.name}</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
@@ -51,6 +119,7 @@
                                     <type>zip</type>
                                 </artifactItem>
                             </artifactItems>
+                            <includes>**/*</includes>
                         </configuration>
                     </execution>
                 </executions>
@@ -61,7 +130,7 @@
                 <executions>
                     <execution>
                         <id>fix-permissions</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -85,25 +154,25 @@
                                 <mkdir dir="${project.build.directory}/deb/usr/bin"/>
                                 <mkdir dir="${project.build.directory}/deb/usr/lib"/>
                                 <mkdir dir="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/json2lua" resource="../lib/${package.name}/bin/json2lua"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/lua2json" resource="../lib/${package.name}/bin/lua2json"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/luajit" resource="../lib/${package.name}/bin/luajit"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks" resource="../lib/${package.name}/bin/luarocks"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks-admin" resource="../lib/${package.name}/bin/luarocks-admin"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/mdcat" resource="../lib/${package.name}/bin/mdcat"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/qlua" resource="../lib/${package.name}/bin/qlua"/>
-                                <symlink link="${project.build.directory}/deb/usr/bin/th" resource="../lib/${package.name}/bin/th"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/lua" resource="../lib/${package.name}/lib/lua"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/luarocks" resource="../lib/${package.name}/lib/luarocks"/>
-                                <symlink link="${project.build.directory}/deb/etc/luarocks" resource="../usr/lib/${package.name}/etc/luarocks"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so.0" resource="../../lib/${package.name}/lib/libTH.so.0"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so" resource="libTH.so.0"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so.0" resource="../../lib/${package.name}/lib/libluaT.so.0"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so" resource="libluaT.so.0"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluajit.so" resource="../../lib/${package.name}/lib/libluajit.so"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqlua.so" resource="../../lib/${package.name}/lib/libqlua.so"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqtlua.so" resource="../../lib/${package.name}/lib/libqtlua.so"/>
-                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libthreadsmain.so" resource="../../lib/${package.name}/lib/libthreadsmain.so"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/json2lua" resource="../lib/${package.name}/bin/json2lua" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/lua2json" resource="../lib/${package.name}/bin/lua2json" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luajit" resource="../lib/${package.name}/bin/luajit" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks" resource="../lib/${package.name}/bin/luarocks" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/luarocks-admin" resource="../lib/${package.name}/bin/luarocks-admin" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/mdcat" resource="../lib/${package.name}/bin/mdcat" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/qlua" resource="../lib/${package.name}/bin/qlua" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/bin/th" resource="../lib/${package.name}/bin/th" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/lua" resource="../lib/${package.name}/lib/lua" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/luarocks" resource="../lib/${package.name}/lib/luarocks" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/etc/luarocks" resource="../usr/lib/${package.name}/etc/luarocks" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so.0" resource="../../lib/${package.name}/lib/libTH.so.0" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libTH.so" resource="libTH.so.0" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so.0" resource="../../lib/${package.name}/lib/libluaT.so.0" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluaT.so" resource="libluaT.so.0" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libluajit.so" resource="../../lib/${package.name}/lib/libluajit.so" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqlua.so" resource="../../lib/${package.name}/lib/libqlua.so" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libqtlua.so" resource="../../lib/${package.name}/lib/libqtlua.so" overwrite="true"/>
+                                <symlink link="${project.build.directory}/deb/usr/lib/x86_64-linux-gnu/libthreadsmain.so" resource="../../lib/${package.name}/lib/libthreadsmain.so" overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>
@@ -118,6 +187,30 @@
                             <target>
                                 <copy file="${outputDeb.pathname}" todir="${outputDeb.copy.destination}"/>
                             </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M2</version>
+                <executions>
+                    <execution>
+                        <id>enforce-files-exist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <files>
+                                        <file>${project.build.directory}/deb/usr/lib/${package.name}/bin/th</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
                         </configuration>
                     </execution>
                 </executions>
@@ -232,7 +325,27 @@
             <type>pom</type>
             <optional>true</optional>
         </dependency>
-        <!-- END dependencies of tests -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
+            <version>1.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
     
