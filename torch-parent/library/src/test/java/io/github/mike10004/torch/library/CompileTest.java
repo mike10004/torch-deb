@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CompileTest {
 
+    private static final String PACKAGE_NAME = "torch-private";
     private static final String SYSPROP_EXPECTED_EXECUTABLE = "torch-deb.expectedThExecExecutable";
 
     @Test
@@ -27,10 +28,9 @@ public class CompileTest {
                 .limit(10).forEach(System.out::println);
     }
 
-    @org.junit.Ignore("currently fails")
     @Test
     public void thFileExecCommand() throws Exception {
-        String expectedExecutable = System.getProperty(SYSPROP_EXPECTED_EXECUTABLE, "/usr/bin/luajit");
+        String expectedExecutable = System.getProperty(SYSPROP_EXPECTED_EXECUTABLE, "/usr/bin/" + PACKAGE_NAME + "/luajit");
         File thFile = resolveTorchBuildProductRoot().toPath().resolve("bin").resolve("th").toFile();
         assertTrue("th file exists", thFile.isFile());
         String execLine = Files.readAllLines(thFile.toPath()).stream().filter(line -> line.startsWith("exec "))
