@@ -8,9 +8,9 @@ of that environment.
 To build a workable package, it is best to execute the build inside the 
 container specified by the Dockerfile in the project root directory. 
 
-# Building inside the container
+## Building library and deb inside a container
 
-## Build the image
+### Build the container image
 
 To build the Docker image, change to this project directory and execute
 
@@ -20,9 +20,9 @@ To build the `.deb` file, you can run the default container command and then
 copy the output file from the container filesystem to your host filesystem,
 or you can run a bash shell and build from within the container.
 
-## Build the deb
+### Build the library and deb
 
-### Use the default command
+#### Use the default command
 
 Execute
 
@@ -31,7 +31,7 @@ Execute
 to build the `.deb` and copy it to `/tmp`. Change `src=/tmp` to point to a 
 different destination directory if you so please. 
 
-### ...or start a shell  
+#### ...or start a shell  
 
 To start a shell, execute
 
@@ -41,6 +41,24 @@ To build the `.deb` from within that container, execute
 
     $ mvn -f /root/torch-parent/pom.xml install -Pcontainer
 
+## Building deb from an existing library
+
+The deb can be built from an existing Torch build product by zipping
+the build product. A Torch build product is the contents of the `$PREFIX` 
+directory after building Torch from a cloned repository. The default 
+location is the `install` subdirectory of the cloned repository directory.
+The root of the zip filesystem must contain the subdirectories `bin`, `etc`, 
+`include`, `lib`. 
+
+Create a directory named `build` in the root of this project and copy the 
+zip there with name `torch-library.zip`. Execute
+
+    # mvn -f torch-parent/pom.xml -P prebuilt install
+
+to build the deb. 
+
+(TODO: Support specifying arbitrary zip pathname.)
+
 ## OpenFace continuation
 
 You can do this on your host computer or in a Docker container. For a suitable
@@ -49,13 +67,13 @@ container, execute
     $ docker run --rm -it ubuntu:18.04 /bin/bash -l
 
 You can also just use the `torch-deb` container to avoid having to install all
-the dependencies.
+the dependencies anew in that container.
 
 OpenFace setup is as follows:
 
     # apt update
 
-    # apt install --yes ./torch-private_7.0-1_all.deb wget git cmake
+    # apt install --yes ./torch-private_7.0-3_all.deb wget git cmake
     
     # git clone https://github.com/cmusatyalab/openface.git
     
