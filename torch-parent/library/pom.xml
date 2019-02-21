@@ -13,7 +13,6 @@
     <properties>
         <distro.url>https://github.com/torch/distro.git</distro.url>
         <construction.area>${project.build.directory}/construction-area</construction.area>
-        <install.prefix>${project.build.directory}/install-area</install.prefix>
         <install.zip>${project.build.directory}/torch-library.zip</install.zip>
         <outputLib.pathname>${install.zip}</outputLib.pathname>
         <torchBuildProduct.descriptor.file>${project.build.testOutputDirectory}/torch-build-product.txt</torchBuildProduct.descriptor.file>

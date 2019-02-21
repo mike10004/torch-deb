@@ -43,6 +43,7 @@
         <package.name>${app.name}-private</package.name>
         <package.revision>3</package.revision> <!-- keep this in sync with the _N suffix of the artifact version -->
         <package.architecture>amd64</package.architecture>
+        <install.prefix>${project.build.directory}/install-area</install.prefix>
         <outputLib.copy.skip>true</outputLib.copy.skip>
         <outputDeb.copy.skip>true</outputDeb.copy.skip>
         <prebuilt.library.zip.exists>false</prebuilt.library.zip.exists>
