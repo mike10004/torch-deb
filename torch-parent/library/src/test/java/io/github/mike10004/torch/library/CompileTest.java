@@ -30,7 +30,7 @@ public class CompileTest {
 
     @Test
     public void thFileExecCommand() throws Exception {
-        String expectedExecutable = System.getProperty(SYSPROP_EXPECTED_EXECUTABLE, "/usr/bin/" + PACKAGE_NAME + "/luajit");
+        String expectedExecutable = System.getProperty(SYSPROP_EXPECTED_EXECUTABLE, "/usr/lib/" + PACKAGE_NAME + "/bin/luajit");
         File thFile = resolveTorchBuildProductRoot().toPath().resolve("bin").resolve("th").toFile();
         assertTrue("th file exists", thFile.isFile());
         String execLine = Files.readAllLines(thFile.toPath()).stream().filter(line -> line.startsWith("exec "))
